@@ -2,7 +2,7 @@ import os
 from flask import Flask, request, jsonify, abort
 from sqlalchemy import exc
 import json
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 from .database.models import db_drop_and_create_all, setup_db, Drink
 from .auth.auth import AuthError, requires_auth
@@ -31,6 +31,7 @@ CORS(app)
 
 
 @app.route('/drinks')
+@cross_origin()
 def get_drinks():
     drinks = Drink.query.all()
     return jsonify({
@@ -51,8 +52,9 @@ def get_drinks():
 
 
 @app.route('/drinks-detail')
+@cross_origin()
 @requires_auth('get:drinks-detail')
-def get_drinks_derail(jwt):
+def get_drinks_details(jwt):
     drinks = Drink.query.all()
     return jsonify({
         'success': True,
@@ -73,6 +75,7 @@ def get_drinks_derail(jwt):
 
 
 @app.route('/drinks', methods=['POST'])
+@cross_origin()
 @requires_auth('post:drinks')
 def add_drinks(jwt):
     data = json.loads(request.data.decode('utf-8'))
@@ -105,6 +108,7 @@ def add_drinks(jwt):
 
 
 @app.route('/drinks/<int:id>', methods=['PATCH'])
+@cross_origin()
 @requires_auth('patch:drinks')
 def edit_drinks(jwt, id):
     drink = Drink.query.get(id)
@@ -143,6 +147,7 @@ def edit_drinks(jwt, id):
 
 
 @app.route('/drinks/<int:id>', methods=['DELETE'])
+@cross_origin()
 @requires_auth('delete:drinks')
 def delete_drinks(jwt, id):
     drink = Drink.query.get(id)
